@@ -18,6 +18,8 @@ export const DATABASE_NAME = process.env.DATABASE_NAME || '';
 export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'mySecretKey';
 
 // NODE ENV
-
 export const NODE_ENV = process.env.NODE_ENV || '';
 
+// GITHUB CREDENTIALS
+export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
+export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
