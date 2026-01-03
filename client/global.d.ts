@@ -1,0 +1,3 @@
+interface LayoutProps {
+  children: ReactNode;
+}
