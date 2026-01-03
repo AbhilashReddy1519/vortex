@@ -5,11 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
-const Register = () => {
+const Register: React.FC = () => {
 	const [isEmail, setIsEmail] = useState(true);
 	return (
 		<>
-			<h1 className="text-4xl mb-8 font-serif">Become a professional developer</h1>
+			<h1 className="text-4xl mb-8 font-serif">
+				Become a professional developer
+			</h1>
 			<div className="max-w-md p-10 rounded-lg border-dashed border bg-transparent backdrop-blur-md">
 				<form className="flex flex-col space-y-6  ">
 					<div className="flex flex-col w-full gap-2">
@@ -21,7 +23,7 @@ const Register = () => {
 									Email
 								</label>
 								<input
-									type="text"
+									type="email"
 									name="email"
 									id="email"
 									className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2"
@@ -36,13 +38,16 @@ const Register = () => {
 								</label>
 								<div className="relative">
 									<input
-										type="text"
+										type="tel"
 										name="phone"
 										id="phone"
-                    // value={}
 										className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 w-full pl-10"
 									/>
-                  <p title="India" className="absolute top-2.25 text-xl left-2.5 font-serif">IN</p>
+									<p
+										title="India"
+										className="absolute top-2.25 text-xl left-2.5 font-serif">
+										IN
+									</p>
 								</div>
 							</>
 						)}
@@ -54,7 +59,7 @@ const Register = () => {
 							Password
 						</label>
 						<input
-							type="text"
+							type="password"
 							name="password"
 							id="password"
 							className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2"
@@ -94,8 +99,8 @@ const Register = () => {
 							src={"/images/github.png"}
 							alt="github logo"
 							className="h-8 w-8 dark:invert"
-							width={10}
-							height={10}
+							width={32}
+							height={32}
 						/>
 						Register via GitHub
 					</button>

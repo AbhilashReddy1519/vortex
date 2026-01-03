@@ -3,7 +3,7 @@ import React from "react";
 import LightRays from "@/components/LightRays";
 
 
-const layout: React.FC<LayoutProps> = ({ children }) => {
+const layout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <>
       <div className="relative w-full bg-black overflow-hidden">

@@ -1,3 +1,3 @@
-interface LayoutProps {
+interface AppLayoutProps {
   children: ReactNode;
 }
