@@ -3,10 +3,18 @@
 import { Mail, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const Register: React.FC = () => {
+	const router = useRouter();
 	const [isEmail, setIsEmail] = useState(true);
+
+	function registerWithGitHub() {
+		router.push(
+			`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`,
+		);
+	}
 	return (
 		<>
 			<h1 className="text-4xl mb-8 font-serif">
@@ -94,7 +102,9 @@ const Register: React.FC = () => {
 				</div>
 
 				<div className="space-y-4 flex flex-col">
-					<button className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3">
+					<button
+						className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3"
+						onClick={registerWithGitHub}>
 						<Image
 							src={"/images/github.png"}
 							alt="github logo"
