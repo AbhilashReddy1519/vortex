@@ -1,4 +1,4 @@
-import { githubService } from '#services/github.service.js';
-import type { Request, Response } from 'express';
+// import { githubService } from '#services/github.service.js';
+// import type { Request, Response } from 'express';
 
-export async function authenticateUser(req, res) {}
+// export async function authenticateUser(req, res) {}
