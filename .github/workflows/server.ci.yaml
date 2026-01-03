@@ -1,6 +1,6 @@
-name: Client CI
+name: Server CI
 
-on:
+on: 
   push:
     branches:
       - main
@@ -10,32 +10,32 @@ on:
 
 jobs:
   build:
-    name: Client Build
+    name: Server Build
+
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: client
+        working-directory: server
 
-    env: 
-      CI: true 
-      NEXT_TELEMETRY_DISABLED: 1
+    env:
+      CI: true
 
     strategy:
       fail-fast: true
       matrix:
         node-version: [22.x, 24.x]
-
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: server/package-lock.json
 
       - run: npm ci
       - run: npm run build
@@ -44,6 +44,4 @@ jobs:
         if: success()
         run: |
           echo "🎉 Build successful"
-          echo "✔ App compiled"
-          echo "✔ Static pages generated"
           echo "✔ Node version: ${{ matrix.node-version }}"
