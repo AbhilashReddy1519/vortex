@@ -10,17 +10,24 @@ import routes from '#routes/index.routes.js';
 const app: Express = express();
 
 const server = createServer(app);
-const io = new Server();
+
+// Socket
+const io = new Server(server, {
+  cors: {
+    origin: [`http://localhost:${CLIENT_PORT}`],
+    credentials: true,
+  },
+});
 
 // Middlewares
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 // CORS
 app.use(
   cors({
     origin: [`http://localhost:${CLIENT_PORT}`],
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -39,6 +46,5 @@ app.get('/health', (req: Request, res: Response) => {
     uptime: Math.floor(process.uptime()),
   });
 });
-
 
 export { app, server, io };
