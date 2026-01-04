@@ -29,13 +29,33 @@ export const githubService = {
       );
 
       return res.data;
-      
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('GitHub OAuth error:', err.response?.data || err.message);
       throw new Error(
         'GitHub OAuth failed: Unable to exchange code for access token.'
       );
+    }
+  },
+
+  getUserData: async (token: string): Promise<GitHubUserData> => {
+    try {
+      const res = await axios.get('https://api.github.com/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      return res.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error(
+        'GitHub user token error: ',
+        error.response?.data || error.message
+      );
+      throw new Error('GitHub user token failed: Unable to get user data');
     }
   },
 };
