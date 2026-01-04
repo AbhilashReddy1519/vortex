@@ -13,6 +13,7 @@ export const SECRET_COOKIE = process.env.SECRET_COOKIE || 'mySecretKey';
 // DATABASE VARIABLES
 export const DATABASE_URL = process.env.DATABASE_URL || '';
 export const DATABASE_NAME = process.env.DATABASE_NAME || '';
+export const NEON_URL = process.env.NEON_DB_URL || '';
 
 // JWT
 export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'mySecretKey';

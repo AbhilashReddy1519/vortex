@@ -1,4 +1,4 @@
-import { connectDB } from '#config/db.js';
+import { connectDB } from '#config/neon.js';
 import { SERVER_PORT } from '#config/env.js';
 import { server } from './app.js';
 
