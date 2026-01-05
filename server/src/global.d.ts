@@ -9,3 +9,34 @@ interface GitHubUserData   {
   company?: string; // Company info
   location?: string; // Location
 }
+
+interface GithubTokenResponse {
+  access_token: string;
+  token_type: string;
+  scope: string;
+}
+
+interface GithubUserEmail {
+  email: string,
+  verified: boolean,
+  primary: boolean,
+  visibility: string,
+}
+
+interface cookieOptions {
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax';
+  maxAge?: number;
+  signed?: boolean;
+}
+
+interface ResponseType {
+  status?: string;
+  message?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error?: string | any;
+  code?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}

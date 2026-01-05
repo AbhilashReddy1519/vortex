@@ -4,6 +4,7 @@ import { LoaderPinwheel } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { api } from "../../../api/api";
 
 export default function GithubCallbackClient() {
 	const params = useSearchParams();
@@ -16,7 +17,17 @@ export default function GithubCallbackClient() {
 
 		// TODO:
 		// Send `code` to backend to exchange for access token
-		
+		async function sendCode() {
+			try {
+				const res = await api.get(
+					`/github/getAccessToken?code=${code}`,
+				);
+				console.log(res);
+			} catch (error) {
+				console.error("GitHub authentication failed:", error);
+			}
+		}
+		sendCode();
 	}, [code]);
 
 	return (
