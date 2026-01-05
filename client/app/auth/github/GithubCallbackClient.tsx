@@ -2,33 +2,32 @@
 
 import { LoaderPinwheel } from "lucide-react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { api } from "../../../api/api";
+import { authorization } from "@/api/github.api";
 
 export default function GithubCallbackClient() {
 	const params = useSearchParams();
 	const code = params.get("code");
+	const router = useRouter();
 
 	useEffect(() => {
 		if (!code) return;
-
-		console.log("GitHub auth code:", code);
-
-		// TODO:
-		// Send `code` to backend to exchange for access token
+		// console.log("GitHub auth code:", code);
 		async function sendCode() {
 			try {
-				const res = await api.get(
-					`/github/getAccessToken?code=${code}`,
-				);
-				console.log(res);
+				const res = await authorization(code!); // ! non null assertion
+				const ok = res.data;
+				if(ok.success) {
+					router.push('/feed');
+				}
 			} catch (error) {
 				console.error("GitHub authentication failed:", error);
+				router.push('/login');
 			}
 		}
 		sendCode();
-	}, [code]);
+	}, [code,router]);
 
 	return (
 		<div className="w-full h-screen flex justify-center items-center bg-black relative overflow-hidden">
@@ -49,3 +48,33 @@ export default function GithubCallbackClient() {
 		</div>
 	);
 }
+
+
+
+/* 
+1. Pass error info via query params
+When redirecting, include a message:
+router.push(`/error?reason=${encodeURIComponent(error.message)}`);
+
+
+"use client";
+import { useSearchParams } from "next/navigation";
+
+export default function ErrorPage() {
+  const params = useSearchParams();
+  const reason = params.get("reason");
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+      <h1 className="text-3xl font-bold">Authentication Failed</h1>
+      <p className="mt-4">{reason || "Something went wrong. Please try again."}</p>
+      <button
+        onClick={() => window.location.href="/"}
+        className="mt-6 px-4 py-2 bg-red-600 rounded"
+      >
+        Go Home
+      </button>
+    </div>
+  );
+}
+**/

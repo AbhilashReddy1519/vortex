@@ -1,10 +1,14 @@
 "use client";
 
+import { ISignUpSchema, signUpSchema } from "@/validations/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { email } from "zod";
 
 const Register: React.FC = () => {
 	const router = useRouter();
@@ -15,13 +19,33 @@ const Register: React.FC = () => {
 			`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user:email`,
 		);
 	}
+
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors, isLoading },
+	} = useForm<ISignUpSchema>({
+		resolver: zodResolver(signUpSchema),
+		mode:'onChange'
+	});
+
+	// function strengthGenerate() {
+
+	// }
+
+	const onSubmit = (data: ISignUpSchema) => {
+		console.log(data);
+	};
 	return (
 		<>
 			<h1 className="text-4xl mb-8 font-serif">
 				Become a professional developer
 			</h1>
 			<div className="max-w-md p-10 rounded-lg border-dashed border bg-transparent backdrop-blur-md">
-				<form className="flex flex-col space-y-6  ">
+				<form
+					className="flex flex-col space-y-6 "
+					onSubmit={handleSubmit(onSubmit)}>
 					<div className="flex flex-col w-full gap-2">
 						{isEmail ? (
 							<>
@@ -31,11 +55,18 @@ const Register: React.FC = () => {
 									Email
 								</label>
 								<input
-									type="email"
-									name="email"
+									type="text"
 									id="email"
-									className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2"
+									className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 ${
+										errors.email ? "border-red-500" : ""
+									}`}
+									{...register("email")}
 								/>
+								{errors.email && (
+									<p className="text-red-500">
+										{errors.email.message}
+									</p>
+								)}
 							</>
 						) : (
 							<>
@@ -46,11 +77,18 @@ const Register: React.FC = () => {
 								</label>
 								<div className="relative">
 									<input
-										type="tel"
-										name="phone"
+										type="text"
 										id="phone"
-										className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 w-full pl-10"
+										className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 w-full pl-10 ${
+											errors.phone ? "border-red-500" : ""
+										}`}
+										{...register("phone")}
 									/>
+									{errors.phone && (
+										<p className="text-red-500">
+											{errors.phone.message}
+										</p>
+									)}
 									<p
 										title="India"
 										className="absolute top-2.25 text-xl left-2.5 font-serif">
@@ -68,10 +106,17 @@ const Register: React.FC = () => {
 						</label>
 						<input
 							type="password"
-							name="password"
 							id="password"
-							className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2"
+							className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 ${
+								errors.password ? "border-red-500" : ""
+							}`}
+							{...register("password")}
 						/>
+						{errors.password && (
+							<p className="text-red-500">
+								{errors.password.message}
+							</p>
+						)}
 					</div>
 					<div className="flex gap-2 items-center text-xl">
 						<input
@@ -91,7 +136,9 @@ const Register: React.FC = () => {
 						Vortex User Agreement, Privacy Policy, and Cookie
 						Policy.
 					</p>
-					<button className="text-xl bg-neutral-600 cursor-pointer hover:bg-neutral-700 py-2 font-quintessential rounded-lg">
+					<button
+						className="text-xl bg-neutral-600 cursor-pointer hover:bg-neutral-700 py-2 font-quintessential rounded-lg"
+						type="submit">
 						Agree & Join
 					</button>
 				</form>
@@ -118,6 +165,8 @@ const Register: React.FC = () => {
 						className="text-xl mt-2 bg-gray-500 hover:bg-gray-600 cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center"
 						onClick={() => {
 							setIsEmail((prev) => !prev);
+							setValue('email',"");
+							setValue('phone', '+91 ');
 						}}>
 						{!isEmail ? (
 							<>
