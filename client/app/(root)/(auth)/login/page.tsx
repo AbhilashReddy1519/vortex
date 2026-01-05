@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { FC } from "react";
 
-const Login = () => {
+const Login: FC = () => {
 	return (
 		<>
 			<div className="max-w-md p-10 rounded-lg border-dashed border bg-transparent backdrop-blur-md">
@@ -14,10 +15,10 @@ const Login = () => {
 							src={"/images/github.png"}
 							alt="github logo"
 							className="h-8 w-8 dark:invert"
-							width={10}
-							height={10}
+							width={32}
+							height={32}
 						/>
-					  Continue with GitHub
+						Continue with GitHub
 					</button>
 					<p className="mt-4 font-serif text-center text-md">
 						By clicking Continue, you agree to Vortex&apos;s User
@@ -50,7 +51,7 @@ const Login = () => {
 							Password
 						</label>
 						<input
-							type="text"
+							type="password"
 							name="password"
 							id="password"
 							className="border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2"
@@ -68,9 +69,7 @@ const Login = () => {
 							id="logged"
 							className="accent-green-400 transition-all duration-300 ease-in-out w-4 h-4"
 						/>
-						<label
-							htmlFor="logged"
-							className="mb-px">
+						<label htmlFor="logged" className="mb-px">
 							Keep me logged in
 						</label>
 					</div>
@@ -81,9 +80,11 @@ const Login = () => {
 			</div>
 			<div className="text-center mt-10">
 				<p className="font-serif">
-					New to Vortex? {" "}
+					New to Vortex?{" "}
 					<Link href={"/register"}>
-						<span className="font-quintessential text-blue-400 hover:underline">Register Now</span>
+						<span className="font-quintessential text-blue-400 hover:underline">
+							Register Now
+						</span>
 					</Link>
 				</p>
 			</div>
