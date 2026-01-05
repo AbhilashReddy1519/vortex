@@ -5,5 +5,5 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-const data = await api.get("/health");
-console.log(data);
+// const data = await api.get("/health");
+// console.log(data);
