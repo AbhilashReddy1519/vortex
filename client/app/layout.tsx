@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fleur_De_Leah, Quintessential } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const FleurDeLeah = Fleur_De_Leah({
 	variable: "--font-fleur-de-leah",
@@ -13,11 +14,6 @@ const quintessential = Quintessential({
 	subsets: ["latin"],
 	weight: "400",
 });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
 	title: "Vortex",
@@ -33,7 +29,9 @@ export default function RootLayout({
 		<html lang="en" className="dark">
 			<body
 				className={`${FleurDeLeah.variable} ${quintessential.variable} font-serif`}>
-				{children}
+				<Providers>
+					<main>{children}</main>
+				</Providers>
 			</body>
 		</html>
 	);

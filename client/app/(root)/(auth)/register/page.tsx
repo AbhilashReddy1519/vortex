@@ -1,17 +1,20 @@
 "use client";
 
+import api from "@/api/config/api";
 import PasswordInput from "@/components/ui/passwordInput";
 import { ISignUpSchema, signUpSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 const Register: React.FC = () => {
 	const router = useRouter();
-
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [error, setError] = useState<string | null>(null);
 	function registerWithGitHub() {
 		router.push(
 			`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user:email`,
@@ -22,7 +25,7 @@ const Register: React.FC = () => {
 		register,
 		handleSubmit,
 		control,
-		formState: { errors, isLoading },
+		formState: { errors },
 	} = useForm<ISignUpSchema>({
 		resolver: zodResolver(signUpSchema),
 		mode: "onChange",
@@ -41,7 +44,24 @@ const Register: React.FC = () => {
 	}, [password]);
 
 	const onSubmit = async (data: ISignUpSchema) => {
-		return setTimeout(() => console.log(data),5000);
+		try {
+			setIsLoading(true);
+			setError(null);
+
+			const res = await api.post("/auth/register", data);
+			console.log(res);
+			if (res.data.success) {
+				router.push("/onboard");
+			}
+		} catch (error) {
+			if (error instanceof AxiosError) {
+				console.error(error);
+				const { response } = error;
+				setError(response?.data?.error?.message ?? "Request failed");
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	};
 	return (
 		<>
@@ -49,6 +69,28 @@ const Register: React.FC = () => {
 				Become a professional developer
 			</h1>
 			<div className="max-w-md p-10 rounded-lg border-dashed border bg-transparent backdrop-blur-md">
+				<h1 className="text-4xl text-center pb-6 font-quintessential text-transparent bg-clip-text bg-linear-to-br font-bold from-white via-red-600 to-orange-700">
+					Join Vortex
+				</h1>
+				<div className="space-y-4 flex flex-col">
+					<button
+						className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3"
+						onClick={registerWithGitHub}>
+						<Image
+							src={"/images/github.png"}
+							alt="github logo"
+							className="h-8 w-8 dark:invert"
+							width={32}
+							height={32}
+						/>
+						Register via GitHub
+					</button>
+				</div>
+				<div className="flex items-center my-8">
+					<span className="grow border-b border-white"></span>
+					<span className="px-2">or</span>
+					<span className="grow border-b border-white"></span>
+				</div>
 				<form
 					className="flex flex-col space-y-6 "
 					onSubmit={handleSubmit(onSubmit)}>
@@ -139,31 +181,20 @@ const Register: React.FC = () => {
 						Policy.
 					</p>
 					<button
-						className={`text-xl bg-neutral-600 hover:bg-neutral-700 py-2 font-quintessential rounded-lg cursor-pointer`}
-						type="submit">
+						className={`text-xl bg-neutral-600 hover:bg-neutral-700 py-2 font-quintessential rounded-lg ${
+							isLoading ? "cursor-not-allowed" : "cursor-pointer"
+						}`}
+						type="submit"
+						disabled={isLoading}>
 						{isLoading ? "Registering..." : "Agree & Join"}
 					</button>
+					{error && (
+						<p className="text-red-500 text-sm pb-6 text-center font-extrabold">
+							{error}
+						</p>
+					)}
 				</form>
-				<div className="flex items-center my-8">
-					<span className="grow border-b border-white"></span>
-					<span className="px-2">or</span>
-					<span className="grow border-b border-white"></span>
-				</div>
 
-				<div className="space-y-4 flex flex-col">
-					<button
-						className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3"
-						onClick={registerWithGitHub}>
-						<Image
-							src={"/images/github.png"}
-							alt="github logo"
-							className="h-8 w-8 dark:invert"
-							width={32}
-							height={32}
-						/>
-						Register via GitHub
-					</button>
-				</div>
 				<div className="mt-10 text-center">
 					<p className="font-serif">
 						Already on Vortex?{" "}

@@ -10,6 +10,7 @@ export async function registerUser(req: Request, res: Response) {
   const payload = req.body;
   try {
     const result = await authenticateService.signUp(payload);
+    console.error(result);
     if (!result) {
       throw new Error('Cannot generate refresh token: user not found');
     }
@@ -19,13 +20,14 @@ export async function registerUser(req: Request, res: Response) {
 
     // CSRF token
     const csrfToken = crypto.randomBytes(24).toString('hex');
-    cookies.set(res, 'csrfToken', csrfToken);
+    cookies.set(res, 'csrfToken', csrfToken, { httpOnly: false });
 
     // Access Token
     const accessToken = generateToken(result, '15m');
+    cookies.set(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
 
     return success(res, {
-      token: accessToken,
+      code: 201,
       message: 'User Registered Successfully',
     });
   } catch (error) {
@@ -48,17 +50,17 @@ export async function loginUser(req: Request, res: Response) {
 
     // CSRF token
     const csrfToken = crypto.randomBytes(24).toString('hex');
-    cookies.set(res, 'csrfToken', csrfToken);
+    cookies.set(res, 'csrfToken', csrfToken, { httpOnly: false });
 
     // Access Token
     const accessToken = generateToken(result, '15m');
+    cookies.set(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
 
     return success(res, {
       message: 'User login successfull',
-      token: accessToken,
     });
   } catch (error) {
-    return failed(res, { error });
+    return failed(res, { error, code: 404 });
   }
 }
 

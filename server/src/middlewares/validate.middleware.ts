@@ -6,15 +6,13 @@ import { z, type ZodType } from 'zod';
 export const validate =
   (schema: ZodType<any>) =>
     (req: Request, res: Response, next: NextFunction) => {
-      const parseResult = schema.safeParse({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      });
+      const parseResult = schema.safeParse(req.body);
+      console.log(parseResult);
       if (!parseResult.success) {
         const errors = z.treeifyError(parseResult.error);
-        return failed(res, { error: JSON.stringify(errors, null, 2) });
+        console.error(parseResult.error);
+        return failed(res, { error: errors, code: 422 });
       }
-      req.body = parseResult.data.body;
+      req.body = parseResult.data;
       next();
     };

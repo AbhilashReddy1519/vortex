@@ -12,14 +12,21 @@ export function success(
   });
 }
 
+function normalizeError(error: unknown) {
+  if (error instanceof Error) {
+    return { message: error.message };
+  }
+  return error;
+}
+
 export function failed(
   res: Response,
-  { status = 'Failed', error = '', code = 200, ...data }: ResponseType
+  { status = 'Failed', error = '', code = 400, ...data }: ResponseType
 ) {
   return res.status(code).json({
     success: false,
     status,
-    error: typeof error === 'string' ? error : JSON.stringify(error, null, 2),
+    error: normalizeError(error),
     data: { ...data },
   });
 }
