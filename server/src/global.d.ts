@@ -35,7 +35,7 @@ interface ResponseType {
   status?: string;
   message?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error?: string | any;
+  error?: any;
   code?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;

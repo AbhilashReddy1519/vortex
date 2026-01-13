@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: "http://localhost:8000",
   withCredentials: true,
 })
@@ -8,3 +8,5 @@ export const api = axios.create({
 export async function getHealth() {
   return await api.get('/health');
 }
+
+export default api;

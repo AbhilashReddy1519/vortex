@@ -9,25 +9,31 @@ import { authorization } from "@/api/github.api";
 export default function GithubCallbackClient() {
 	const params = useSearchParams();
 	const code = params.get("code");
+	const error = params.get("error");
 	const router = useRouter();
 
 	useEffect(() => {
-		if (!code) return;
+		if (!code && !error) return;
+		if(error) {
+			console.log(error, params.get('error_description'));
+			router.push("/login");
+			return;
+		}
 		// console.log("GitHub auth code:", code);
 		async function sendCode() {
 			try {
 				const res = await authorization(code!); // ! non null assertion
 				const ok = res.data;
-				if(ok.success) {
-					router.push('/feed');
-				}
+				if (ok.success) {
+					router.push("/feed");
+				} 
 			} catch (error) {
 				console.error("GitHub authentication failed:", error);
-				router.push('/login');
+				router.push("/login");
 			}
 		}
 		sendCode();
-	}, [code,router]);
+	}, [code, router, error, params]);
 
 	return (
 		<div className="w-full h-screen flex justify-center items-center bg-black relative overflow-hidden">
@@ -48,8 +54,6 @@ export default function GithubCallbackClient() {
 		</div>
 	);
 }
-
-
 
 /* 
 1. Pass error info via query params

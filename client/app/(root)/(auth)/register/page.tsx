@@ -1,19 +1,20 @@
 "use client";
 
+import api from "@/api/config/api";
+import PasswordInput from "@/components/ui/passwordInput";
 import { ISignUpSchema, signUpSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, Phone } from "lucide-react";
+import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { email } from "zod";
+import React, { useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 
 const Register: React.FC = () => {
 	const router = useRouter();
-	const [isEmail, setIsEmail] = useState(true);
-
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [error, setError] = useState<string | null>(null);
 	function registerWithGitHub() {
 		router.push(
 			`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user:email`,
@@ -23,19 +24,44 @@ const Register: React.FC = () => {
 	const {
 		register,
 		handleSubmit,
-		setValue,
-		formState: { errors, isLoading },
+		control,
+		formState: { errors },
 	} = useForm<ISignUpSchema>({
 		resolver: zodResolver(signUpSchema),
-		mode:'onChange'
+		mode: "onChange",
+		defaultValues: {},
 	});
+	const password = useWatch({ control, name: "password" });
 
-	// function strengthGenerate() {
+	const passwordConstraints = useMemo(() => {
+		if (!password) return;
+		return {
+			capital: /[A-Z]/.test(password),
+			small: /[a-z]/.test(password),
+			number: /[0-9]/.test(password),
+			special: /[^A-Za-z0-9]/.test(password),
+		};
+	}, [password]);
 
-	// }
+	const onSubmit = async (data: ISignUpSchema) => {
+		try {
+			setIsLoading(true);
+			setError(null);
 
-	const onSubmit = (data: ISignUpSchema) => {
-		console.log(data);
+			const res = await api.post("/auth/register", data);
+			console.log(res);
+			if (res.data.success) {
+				router.push("/onboard");
+			}
+		} catch (error) {
+			if (error instanceof AxiosError) {
+				console.error(error);
+				const { response } = error;
+				setError(response?.data?.error?.message ?? "Request failed");
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	};
 	return (
 		<>
@@ -43,80 +69,98 @@ const Register: React.FC = () => {
 				Become a professional developer
 			</h1>
 			<div className="max-w-md p-10 rounded-lg border-dashed border bg-transparent backdrop-blur-md">
+				<h1 className="text-4xl text-center pb-6 font-quintessential text-transparent bg-clip-text bg-linear-to-br font-bold from-white via-red-600 to-orange-700">
+					Join Vortex
+				</h1>
+				<div className="space-y-4 flex flex-col">
+					<button
+						className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3"
+						onClick={registerWithGitHub}>
+						<Image
+							src={"/images/github.png"}
+							alt="github logo"
+							className="h-8 w-8 dark:invert"
+							width={32}
+							height={32}
+						/>
+						Register via GitHub
+					</button>
+				</div>
+				<div className="flex items-center my-8">
+					<span className="grow border-b border-white"></span>
+					<span className="px-2">or</span>
+					<span className="grow border-b border-white"></span>
+				</div>
 				<form
 					className="flex flex-col space-y-6 "
 					onSubmit={handleSubmit(onSubmit)}>
 					<div className="flex flex-col w-full gap-2">
-						{isEmail ? (
-							<>
-								<label
-									htmlFor="email"
-									className="font-quintessential text-xl">
-									Email
-								</label>
-								<input
-									type="text"
-									id="email"
-									className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 ${
-										errors.email ? "border-red-500" : ""
-									}`}
-									{...register("email")}
-								/>
-								{errors.email && (
-									<p className="text-red-500">
-										{errors.email.message}
-									</p>
-								)}
-							</>
-						) : (
-							<>
-								<label
-									htmlFor="email"
-									className="font-quintessential text-xl">
-									Phone Number
-								</label>
-								<div className="relative">
-									<input
-										type="text"
-										id="phone"
-										className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 w-full pl-10 ${
-											errors.phone ? "border-red-500" : ""
-										}`}
-										{...register("phone")}
-									/>
-									{errors.phone && (
-										<p className="text-red-500">
-											{errors.phone.message}
-										</p>
-									)}
-									<p
-										title="India"
-										className="absolute top-2.25 text-xl left-2.5 font-serif">
-										IN
-									</p>
-								</div>
-							</>
+						<label
+							htmlFor="email"
+							className="font-quintessential text-xl">
+							Email
+						</label>
+						<input
+							type="text"
+							id="email"
+							className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 ${
+								errors.email ? "border-red-500" : ""
+							}`}
+							{...register("email")}
+							placeholder=""
+						/>
+						{errors.email && (
+							<p className="text-red-500">
+								{errors.email.message}
+							</p>
 						)}
 					</div>
 					<div className="flex flex-col w-full gap-2">
-						<label
-							htmlFor="password"
-							className="font-quintessential text-xl">
-							Password
-						</label>
-						<input
-							type="password"
+						<PasswordInput
+							errors={errors}
+							label="Password"
 							id="password"
-							className={`border text-xl rounded-lg hover:outline-2 focus:outline-none font-serif py-2 px-2 ${
-								errors.password ? "border-red-500" : ""
-							}`}
 							{...register("password")}
 						/>
-						{errors.password && (
-							<p className="text-red-500">
-								{errors.password.message}
-							</p>
-						)}
+					</div>
+					<div className="p-2 text-sm border rounded-sm bg-gray-900">
+						<h2 className="text-center">
+							Password must contain atleast
+						</h2>
+						<ul className="pl-3 list-disc">
+							<li
+								className={
+									passwordConstraints?.capital
+										? "text-lime-400"
+										: ""
+								}>
+								one uppercase (A...Z)
+							</li>
+							<li
+								className={
+									passwordConstraints?.small
+										? "text-lime-400"
+										: ""
+								}>
+								one lowercase (a...z)
+							</li>
+							<li
+								className={
+									passwordConstraints?.special
+										? "text-lime-400"
+										: ""
+								}>
+								a special character
+							</li>
+							<li
+								className={
+									passwordConstraints?.number
+										? "text-lime-400"
+										: ""
+								}>
+								a number (0–9)
+							</li>
+						</ul>
 					</div>
 					<div className="flex gap-2 items-center text-xl">
 						<input
@@ -137,54 +181,20 @@ const Register: React.FC = () => {
 						Policy.
 					</p>
 					<button
-						className="text-xl bg-neutral-600 cursor-pointer hover:bg-neutral-700 py-2 font-quintessential rounded-lg"
-						type="submit">
-						Agree & Join
+						className={`text-xl bg-neutral-600 hover:bg-neutral-700 py-2 font-quintessential rounded-lg ${
+							isLoading ? "cursor-not-allowed" : "cursor-pointer"
+						}`}
+						type="submit"
+						disabled={isLoading}>
+						{isLoading ? "Registering..." : "Agree & Join"}
 					</button>
+					{error && (
+						<p className="text-red-500 text-sm pb-6 text-center font-extrabold">
+							{error}
+						</p>
+					)}
 				</form>
-				<div className="flex items-center my-8">
-					<span className="grow border-b border-white"></span>
-					<span className="px-2">or</span>
-					<span className="grow border-b border-white"></span>
-				</div>
 
-				<div className="space-y-4 flex flex-col">
-					<button
-						className="text-xl bg-[#050e1c] hover:bg-[#020f27] cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center gap-3"
-						onClick={registerWithGitHub}>
-						<Image
-							src={"/images/github.png"}
-							alt="github logo"
-							className="h-8 w-8 dark:invert"
-							width={32}
-							height={32}
-						/>
-						Register via GitHub
-					</button>
-					<button
-						className="text-xl mt-2 bg-gray-500 hover:bg-gray-600 cursor-pointer py-2 rounded-lg font-quintessential flex justify-center items-center"
-						onClick={() => {
-							setIsEmail((prev) => !prev);
-							setValue('email',"");
-							setValue('phone', '+91 ');
-						}}>
-						{!isEmail ? (
-							<>
-								<span className="flex gap-2">
-									<Mail />
-									Register via Email
-								</span>
-							</>
-						) : (
-							<>
-								<span className="flex gap-2">
-									<Phone />
-									Register via Phone Number
-								</span>
-							</>
-						)}
-					</button>
-				</div>
 				<div className="mt-10 text-center">
 					<p className="font-serif">
 						Already on Vortex?{" "}
