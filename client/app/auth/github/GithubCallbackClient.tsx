@@ -25,6 +25,10 @@ export default function GithubCallbackClient() {
 				const res = await authorization(code!); // ! non null assertion
 				const ok = res.data;
 				if (ok.success) {
+					if(ok?.on_boarding) {
+						router.push('/onboard');
+						return;
+					}
 					router.push("/feed");
 				} 
 			} catch (error) {
