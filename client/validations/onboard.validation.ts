@@ -1,4 +1,5 @@
 import z from "zod";
+import { imageFileSchema } from "@/utils/imageFileSchema";
 
 export const fullNameSchema = z.object({
 	firstName: z
@@ -19,19 +20,11 @@ export const locationSchema = z.object({
 	city: z.string().trim().min(1, "City is required"),
 });
 
-
 export const pictureSchema = z.object({
-  profile_picture: z
-  .string()
-  .default(
-    "https://media.licdn.com/dms/image/v2/D4E12AQEud3Ll5MI7cQ/article-inline_image-shrink_1000_1488/article-inline_image-shrink_1000_1488/0/1660833954461?e=2147483647&v=beta&t=1e_UbOwhBjrbh6dYElFz-hUdQy2gltC1XWh2NxkigvI",
-  ),
-	cover_picture: z
-  .string()
-  .default(
-    "https://i0.wp.com/linkedinheaders.com/wp-content/uploads/2018/02/mountain-clouds-header.jpg?w=1584&ssl=1",
-  ),
+	profile_picture: imageFileSchema.optional(),
+	cover_picture: imageFileSchema.optional(),
 });
+
 
 
 export const usernameSchema = z.object({
@@ -56,3 +49,4 @@ export type StepFormData = Partial<OnboardingFormData>;
 
 
 export type OnboardingFormData = IFullNameSchema & ILocationSchema & IPictureSchema & IUsernameSchema;
+

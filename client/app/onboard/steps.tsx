@@ -1,5 +1,6 @@
 import { OnboardingFormData } from "@/validations/onboard.validation";
-import { useMemo } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 type props = {
@@ -145,15 +146,210 @@ export const GetLocation = ({ goToNextStep, updateFormData }: props) => {
 	);
 };
 
+type ImageState = {
+	preview: string;
+	file?: File;
+};
 
-export const GetPictures = () => {
-  return(
-    <>
-      <div className="h-full flex flex-col gap-6 items-center">
-        <div>
-          <h1>Set profile picture and cover picture</h1>
-        </div>
-      </div>
-    </>
-  )
-}
+export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
+	const defaultProfileUrl =
+		"https://media.licdn.com/dms/image/v2/D4E12AQEud3Ll5MI7cQ/article-inline_image-shrink_1000_1488/article-inline_image-shrink_1000_1488/0/1660833954461?e=2147483647&v=beta&t=1e_UbOwhBjrbh6dYElFz-hUdQy2gltC1XWh2NxkigvI";
+	const defaultCoverUrl =
+		"https://i0.wp.com/linkedinheaders.com/wp-content/uploads/2018/02/mountain-clouds-header.jpg?w=1584&ssl=1";
+
+	const [showProfile, setShowProfile] = useState(false);
+	const [showCover, setShowCover] = useState(false);
+	const [profilePicture, setProfilePicture] = useState<ImageState>({
+		preview: defaultProfileUrl,
+		file: undefined,
+	});
+	const [coverPicture, setCoverPicture] = useState<ImageState>({
+		preview: defaultCoverUrl,
+		file: undefined,
+	});
+
+	// useEffect(() => {
+	// 	const handleClick = (e: MouseEvent) => {
+	// 		if (
+	// 			profileModal.current &&
+	// 			!profileModal.current.contains(e.target as Node)
+	// 		) {
+	// 			setShowProfile(false);
+	// 		}
+	// 	};
+
+	// 	document.addEventListener("mousedown", handleClick);
+
+	// 	return () => {
+	// 		document.removeEventListener("mousedown", handleClick);
+	// 	};
+	// }, [setShowCover, setShowProfile]);
+
+	const {
+		setValue,
+		register,
+		formState: { errors },
+	} = useFormContext<OnboardingFormData>();
+
+	const onNext = () => {
+		setValue("profile_picture", profilePicture.file);
+		setValue("cover_picture", coverPicture.file);
+
+		updateFormData({
+			profile_picture: profilePicture.file,
+			cover_picture: coverPicture.file,
+		});
+		goToNextStep();
+	};
+	return (
+		<>
+			{showProfile && (
+				<>
+					<div
+						className="h-screen w-full backdrop-blur-[2px] bg-white/10 overflow-hidden fixed inset-0 z-10 flex justify-center items-center"
+						onClick={() => setShowProfile(false)}>
+						<div
+							className="relative w-md space-y-6 bg-black p-10 rounded"
+							onClick={(e) => e.stopPropagation()}>
+							<div
+								style={{
+									backgroundImage:
+										"radial-gradient(#666 1px, transparent 1px)",
+									backgroundSize: "16px 16px",
+								}}
+								className="w-full bg-white/10 p-2 flex justify-center">
+								<Image
+									src={profilePicture.preview}
+									height={200}
+									width={100}
+									alt="profile picture"
+									className="h-40 w-40 rounded"
+								/>
+							</div>
+							<div>
+								<label htmlFor="picture" className="text-xl ">
+									Upload Profile Picture
+								</label>
+								<input
+									className="border w-full mt-4 rounded px-2"
+									type="file"
+									accept="image/*"
+									onChange={(e) => {
+										const file = e.target.files?.[0];
+										if (!file) return;
+										const preview =
+											URL.createObjectURL(file);
+										setProfilePicture({
+											preview,
+											file,
+										});
+									}}
+									id="picture"
+								/>
+								{errors && errors["profile_picture"] && (
+									<p>{errors["profile_picture"].message}</p>
+								)}
+							</div>
+							<button
+								className="w-full cursor-pointer bg-button-bg hover:bg-button-hover py-1 rounded-full text-xl"
+								onClick={() => {
+									setShowProfile(false);
+								}}>
+								Done
+							</button>
+						</div>
+					</div>
+				</>
+			)}
+			{showCover && (
+				<>
+					<div
+						className="h-screen w-full backdrop-blur-[2px] bg-white/10 overflow-hidden fixed inset-0 z-10 flex justify-center items-center"
+						onClick={() => setShowCover(false)}>
+						<div
+							className="relative w-md space-y-6 bg-black p-10 rounded"
+							onClick={(e) => e.stopPropagation()}>
+							<div
+								style={{
+									backgroundImage:
+										"radial-gradient(#666 1px, transparent 1px)",
+									backgroundSize: "16px 16px",
+								}}
+								className="w-full bg-white/10 p-2 flex justify-center">
+								<Image
+									src={coverPicture.preview}
+									height={200}
+									width={100}
+									alt="profile picture"
+									className="w-full object-contain rounded"
+								/>
+							</div>
+							<div>
+								<label htmlFor="picture" className="text-xl ">
+									Upload Cover Picture
+								</label>
+								<input
+									className="border w-full mt-4 rounded px-2"
+									type="file"
+									accept="image/*"
+									onChange={(e) => {
+										const file = e.target.files?.[0];
+										if (!file) return;
+										const preview =
+											URL.createObjectURL(file);
+										setCoverPicture({
+											preview,
+											file,
+										});
+									}}
+									id="picture"
+								/>
+								{errors && errors["cover_picture"] && (
+									<p>{errors["cover_picture"].message}</p>
+								)}
+							</div>
+							<button
+								className="w-full cursor-pointer bg-button-bg hover:bg-button-hover py-1 rounded-full text-xl"
+								onClick={() => {
+									setShowCover(false);
+								}}>
+								Done
+							</button>
+						</div>
+					</div>
+				</>
+			)}
+			<div className="h-full flex flex-col gap-6 items-center mb-10">
+				<div className="text-center">
+					<h1>Set profile picture and cover picture</h1>
+					<p>Good to connect with developers</p>
+				</div>
+				<div className="relative bg-white/15 h-100 flex flex-col p-10 rounded justify-between">
+					<div className="relative">
+						<Image
+							src={coverPicture.preview}
+							onClick={() => setShowCover(true)}
+							width={1000}
+							height={400}
+							alt={"pr0file picture"}
+							className="rounded w-full cursor-pointer"
+						/>
+						<Image
+							className="rounded-full absolute h-8 w-8 sm:w-20 sm:h-20 md:w-32 md:h-32 lg:w-38 lg:h-38 top-1/2 left-10 cursor-pointer"
+							onClick={() => setShowProfile(true)}
+							src={profilePicture.preview}
+							width={200}
+							height={200}
+							alt={"cover picture"}
+						/>
+					</div>
+					<button
+						className="mt-10 py-2 text-2xl cursor-pointer rounded-full  bg-amber-700"
+						onClick={onNext}>
+						Next
+					</button>
+				</div>
+			</div>
+		</>
+	);
+};
