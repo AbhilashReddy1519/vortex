@@ -45,7 +45,11 @@ function OnBoarding() {
 			goToNextStep={goToNextStep}
 			updateFormData={updateFormData}
 		/>,
-		<GetPictures key={"picture"}/>
+		<GetPictures
+			key={"picture"}
+			goToNextStep={goToNextStep}
+			updateFormData={updateFormData}
+		/>,
 	];
 
 	useEffect(() => {
@@ -67,15 +71,15 @@ function OnBoarding() {
 			{/** Modal */}
 			{showModal && (
 				<>
-					<div className="h-screen w-full backdrop-blur-[2px] bg-white/10 overflow-hidden absolute inset-0 z-10 flex justify-center items-center">
+					<div className="h-screen w-full backdrop-blur-[2px] bg-white/10 overflow-hidden fixed inset-0 z-10 flex justify-center items-center">
 						<div
-							className="relative w-md  space-y-6 bg-white p-10 rounded"
+							className="relative w-md  space-y-6 p-10 rounded bg-black"
 							ref={modal}>
-							<div className="space-y-6  text-center text-black">
+							<div className="space-y-6  text-center">
 								<h1 className="text-2xl">
 									Let&apos;s get you set up
 								</h1>
-								<h1 className="text-md text-gray-700">
+								<h1 className="text-md text-gray-400">
 									<span className="text-xl">“</span> This will
 									only take about 2 minutes. It helps us set
 									things up just right for you.
@@ -83,7 +87,7 @@ function OnBoarding() {
 								</h1>
 							</div>
 							<button
-								className="bg-blue-500 border border-black cursor-pointer rounded-sm w-full py-1 text-xl"
+								className="bg-blue-500 border border-yellow-500 cursor-pointer rounded-sm w-full py-1 text-xl"
 								onClick={() => {
 									closeModal();
 								}}>
@@ -95,7 +99,7 @@ function OnBoarding() {
 			)}
 			<FormProvider {...methods}>
 				<div className="h-full flex justify-center flex-col items-center w-full">
-					{currentForm[currentStep]}
+					{currentForm[2]}
 				</div>
 			</FormProvider>
 		</>
