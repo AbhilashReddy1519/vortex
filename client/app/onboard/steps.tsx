@@ -1,6 +1,6 @@
 import { OnboardingFormData } from "@/validations/onboard.validation";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 type props = {
@@ -188,12 +188,22 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 	const {
 		setValue,
 		register,
+		trigger,
 		formState: { errors },
 	} = useFormContext<OnboardingFormData>();
+	const coverRegister = register("cover_picture");
 
-	const onNext = () => {
-		setValue("profile_picture", profilePicture.file);
-		setValue("cover_picture", coverPicture.file);
+	const onNext = async () => {
+		setValue("profile_picture", profilePicture.file, {
+			shouldValidate: true,
+		});
+		setValue("cover_picture", coverPicture.file, {
+			shouldValidate: true,
+		});
+
+		const isValid = await trigger();
+		console.log(errors)
+		if(!isValid) return;
 
 		updateFormData({
 			profile_picture: profilePicture.file,
@@ -281,7 +291,7 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 									height={200}
 									width={100}
 									alt="profile picture"
-									className="w-full object-contain rounded"
+									className="w-full h-40 object-contain rounded"
 								/>
 							</div>
 							<div>
@@ -292,7 +302,8 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 									className="border w-full mt-4 rounded px-2"
 									type="file"
 									accept="image/*"
-									onChange={(e) => {
+									onChange={async (e) => {
+										coverRegister.onChange(e);
 										const file = e.target.files?.[0];
 										if (!file) return;
 										const preview =
@@ -301,11 +312,14 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 											preview,
 											file,
 										});
+										await trigger("cover_picture");
 									}}
 									id="picture"
 								/>
 								{errors && errors["cover_picture"] && (
-									<p>{errors["cover_picture"].message}</p>
+									<p className="text-red-500 text-sm">
+										{errors["cover_picture"].message}
+									</p>
 								)}
 							</div>
 							<button
@@ -331,8 +345,8 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 							onClick={() => setShowCover(true)}
 							width={1000}
 							height={400}
-							alt={"pr0file picture"}
-							className="rounded w-full cursor-pointer"
+							alt={"cover picture"}
+							className="rounded w-200 h-50 cursor-pointer"
 						/>
 						<Image
 							className="rounded-full absolute h-8 w-8 sm:w-20 sm:h-20 md:w-32 md:h-32 lg:w-38 lg:h-38 top-1/2 left-10 cursor-pointer"
@@ -340,7 +354,7 @@ export const GetPictures = ({ goToNextStep, updateFormData }: props) => {
 							src={profilePicture.preview}
 							width={200}
 							height={200}
-							alt={"cover picture"}
+							alt={"Profile picture"}
 						/>
 					</div>
 					<button

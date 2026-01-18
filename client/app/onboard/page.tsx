@@ -9,6 +9,7 @@ import {
 	StepFormData,
 } from "@/validations/onboard.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Username from "./Username";
 
 function OnBoarding() {
 	const modal = useRef<HTMLDivElement | null>(null);
@@ -26,6 +27,7 @@ function OnBoarding() {
 		resolver: zodResolver(getCurrentSchema()),
 		mode: "onChange",
 		defaultValues: formData as OnboardingFormData,
+		reValidateMode: "onChange",
 	});
 
 	const { reset } = methods;
@@ -47,6 +49,11 @@ function OnBoarding() {
 		/>,
 		<GetPictures
 			key={"picture"}
+			goToNextStep={goToNextStep}
+			updateFormData={updateFormData}
+		/>,
+		<Username
+			key={"username"}
 			goToNextStep={goToNextStep}
 			updateFormData={updateFormData}
 		/>,
@@ -99,7 +106,7 @@ function OnBoarding() {
 			)}
 			<FormProvider {...methods}>
 				<div className="h-full flex justify-center flex-col items-center w-full">
-					{currentForm[2]}
+					{currentForm[currentStep]}
 				</div>
 			</FormProvider>
 		</>

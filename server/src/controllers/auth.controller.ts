@@ -2,6 +2,7 @@ import { authenticateService } from '#services/auth.service.js';
 import { failed, success } from '#utils/response.util.js';
 import type { Request, Response } from 'express';
 import { tokenService } from '#services/tokens.service.js';
+import { userService } from '#services/user.service.js';
 
 // Register --> email password
 export async function registerUser(req: Request, res: Response) {
@@ -63,6 +64,22 @@ export async function loginUser(req: Request, res: Response) {
     });
   } catch (error) {
     return failed(res, { error, code: 404 });
+  }
+}
+
+export async function checkUsername(req: Request, res: Response) {
+  const { username } = req.query as { username?: string };
+  if (!username) {
+    failed(res, { available: false, error: 'Username required' });
+    return;
+  }
+  try {
+    const available = await userService.checkUsername(username);
+
+    return success(res, { available });
+  } catch (error) {
+    console.log(error);
+    return failed(res, { code: 500, available: false, error: 'Internal server error' });
   }
 }
 
