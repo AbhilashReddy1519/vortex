@@ -1,3 +1,12 @@
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: TokenPayload,
+//     }
+//   }
+// }
+// This pattern only works for commonjs non-isolated ts
+
 interface GitHubUserData   {
   id: number; // Unique GitHub user ID
   login: string; // Username

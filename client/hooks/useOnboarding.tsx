@@ -1,6 +1,8 @@
 import { fullNameSchema, locationSchema, pictureSchema, usernameSchema } from "@/validations/onboard.validation";
 import { useState } from "react";
 import type { StepFormData } from "@/validations/onboard.validation";
+import api from "@/api/config/api";
+import { AxiosError } from "axios";
 
 
 const steps = ["name", "location", "pictures", "username"];
@@ -36,6 +38,23 @@ export const useOnboarding = () => {
 
 	const getCurrentSchema = () => stepsSchema[currentStep];
 
+	const completeOnboarding = async () => {
+		try {
+			const res = await api.put('/user/onboard-complete', {
+				payload: formData
+			});
+
+			const {data} = res;
+			return data.success;
+		} catch(error) {
+			console.error(error);
+			if(error instanceof AxiosError) {
+				return error?.response?.data.success;
+			}
+			return false;
+		}
+	}
+
 	return {
 		formData,
 		showModal,
@@ -46,6 +65,7 @@ export const useOnboarding = () => {
 		goToPreviousStep,
 		closeModal,
 		updateFormData,
-		getCurrentSchema
+		getCurrentSchema,
+		completeOnboarding
 	};
 };

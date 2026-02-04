@@ -24,3 +24,6 @@ export const NODE_ENV = process.env.NODE_ENV || '';
 // GITHUB CREDENTIALS
 export const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
 export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
+
+// ClOUDINARY URL
+export const CLOUDINARY_URL = process.env.CLOUDINARY_URL || '';

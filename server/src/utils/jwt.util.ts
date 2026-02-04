@@ -1,5 +1,9 @@
 import { JWT_SECRET_KEY } from '#config/env.js';
-import jwt from 'jsonwebtoken';
+import jwt, {
+  JsonWebTokenError,
+  TokenExpiredError,
+  type JwtPayload,
+} from 'jsonwebtoken';
 
 export function generateToken(
   payload: { id: string },
@@ -12,6 +16,59 @@ export function generateToken(
   );
 }
 
-export function verifyToken(token: string) {
-  return jwt.verify(token, JWT_SECRET_KEY as jwt.Secret);
+export type TokenPayload = {
+  id: string;
+};
+
+type VerifiedToken =
+  | {
+      valid: true;
+      expired: false;
+      decoded: TokenPayload;
+    }
+  | {
+      valid: false;
+      expired: boolean;
+      decoded: null;
+    };
+
+export function verifyToken(token: string): VerifiedToken {
+  try {
+    const decoded = jwt.verify(
+      token,
+      JWT_SECRET_KEY as jwt.Secret
+    ) as JwtPayload;
+
+    if (typeof decoded === 'string' || !decoded.id) {
+      return {
+        valid: false,
+        expired: false,
+        decoded: null,
+      };
+    }
+
+    return {
+      valid: true,
+      expired: false,
+      decoded: { id: decoded.id },
+    };
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      return {
+        valid: false,
+        expired: true,
+        decoded: null,
+      };
+    }
+
+    if (error instanceof JsonWebTokenError) {
+      return {
+        valid: false,
+        expired: false,
+        decoded: null,
+      };
+    }
+
+    throw error; // unexpected error
+  }
 }

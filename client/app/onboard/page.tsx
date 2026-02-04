@@ -21,6 +21,7 @@ function OnBoarding() {
 		closeModal,
 		goToNextStep,
 		getCurrentSchema,
+		completeOnboarding,
 	} = useOnboarding();
 
 	const methods = useForm<StepFormData>({
@@ -56,6 +57,7 @@ function OnBoarding() {
 			key={"username"}
 			goToNextStep={goToNextStep}
 			updateFormData={updateFormData}
+			completeOnboarding={completeOnboarding}
 		/>,
 	];
 

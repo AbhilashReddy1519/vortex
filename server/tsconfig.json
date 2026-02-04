@@ -5,7 +5,7 @@
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"allowJs": true,
-
+		"typeRoots": ["./src/types", "./node_modules/@types"],
 		// Environment Settings
 		// See also https://aka.ms/tsconfig/module
 		"module": "nodenext",
@@ -14,7 +14,7 @@
 		// "types": [],
 		// For nodejs:
 		"lib": ["esnext"],
-		"types": ["node"],
+		"types": ["node", "express"],
 		// and npm install -D @types/node
 
 		// Other Outputs

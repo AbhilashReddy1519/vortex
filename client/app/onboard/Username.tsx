@@ -1,15 +1,21 @@
 import api from "@/api/config/api";
 import { debounceAsync } from "@/utils/debounce";
 import { OnboardingFormData } from "@/validations/onboard.validation";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 
 type props = {
 	goToNextStep: () => void;
 	updateFormData: (data: Partial<OnboardingFormData>) => void;
+	completeOnboarding: () => Promise<boolean>;
 };
 
-const Username = ({ goToNextStep, updateFormData }: props) => {
+const Username = ({
+	goToNextStep,
+	updateFormData,
+	completeOnboarding,
+}: props) => {
 	const {
 		register,
 		formState: { errors },
@@ -20,12 +26,18 @@ const Username = ({ goToNextStep, updateFormData }: props) => {
 		clearErrors,
 	} = useFormContext<OnboardingFormData>();
 
+	const router = useRouter();
 	const onNext = async (data: Partial<OnboardingFormData>) => {
 		const valid = await trigger();
 		if (!valid) return;
-		console.log(data);
+		// console.log(data);
 		updateFormData(data);
-		goToNextStep();
+		const res = await completeOnboarding();
+		if(res) {
+			router.push('/feed');
+		} else {
+			console.log("Unable to submit data");
+		}
 	};
 	const username = watch("username");
 
@@ -35,7 +47,7 @@ const Username = ({ goToNextStep, updateFormData }: props) => {
 				const res = await api.get("/auth/username/check", {
 					params: { username: value },
 				});
-				const { data:result } = res;
+				const { data: result } = res;
 
 				return result.data.available;
 			} catch {
@@ -96,7 +108,9 @@ const Username = ({ goToNextStep, updateFormData }: props) => {
 							</p>
 						)}
 					</div>
-					<button className="bg-button-bg text-xl rounded-full py-2 mt-4 cursor-pointer hover:bg-button-hover">
+					<button
+						className="bg-button-bg text-xl rounded-full py-2 mt-4 cursor-pointer hover:bg-button-hover"
+						onClick={handleSubmit(onNext)}>
 						Let&lsquo;s Explore
 					</button>
 				</form>
