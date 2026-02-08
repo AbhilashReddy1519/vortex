@@ -27,3 +27,6 @@ export const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
 
 // ClOUDINARY URL
 export const CLOUDINARY_URL = process.env.CLOUDINARY_URL || '';
+export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
+export const CLOUDINARY_CLOUD_API_KEY = process.env.CLOUDINARY_CLOUD_API_KEY || '';
+export const CLOUDINARY_CLOUD_API_SECRET = process.env.CLOUDINARY_CLOUD_API_SECRET || '';

@@ -1,9 +1,6 @@
 import { JWT_SECRET_KEY } from '#config/env.js';
-import jwt, {
-  JsonWebTokenError,
-  TokenExpiredError,
-  type JwtPayload,
-} from 'jsonwebtoken';
+import jwt, { type JwtPayload } from 'jsonwebtoken';
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 
 export function generateToken(
   payload: { id: string },

@@ -6,6 +6,7 @@ import { z, type ZodType } from 'zod';
 export const validate =
   (schema: ZodType<any>) =>
     (req: Request, res: Response, next: NextFunction) => {
+      console.log(JSON.stringify(req.body, null, 2));
       const parseResult = schema.safeParse(req.body);
       console.log(parseResult);
       if (!parseResult.success) {

@@ -12,7 +12,20 @@ export async function completeOnboarding(req: Request, res: Response) {
   }
 
   try {
-    const result = await userService.completeOnboarding(payload);
+    const files = req.files as {
+      profile_picture?: Express.Multer.File[];
+      cover_picture?: Express.Multer.File[];
+    };
+
+    const profilePicture = files?.profile_picture?.[0];
+    const coverPicture = files?.cover_picture?.[0];
+
+    const result = await userService.completeOnboarding(
+      payload,
+      profilePicture,
+      coverPicture
+    );
+    console.log(result);
   } catch (error) {
     console.log(error);
   }
