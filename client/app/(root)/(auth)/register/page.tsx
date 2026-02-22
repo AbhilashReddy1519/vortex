@@ -2,6 +2,7 @@
 
 import api from "@/api/config/api";
 import PasswordInput from "@/components/ui/passwordInput";
+import { useAuth } from "@/hooks/useAuth";
 import { ISignUpSchema, signUpSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
@@ -13,6 +14,7 @@ import { useForm, useWatch } from "react-hook-form";
 
 const Register: React.FC = () => {
 	const router = useRouter();
+	const { updateUser } = useAuth();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	function registerWithGitHub() {
@@ -51,6 +53,12 @@ const Register: React.FC = () => {
 			const res = await api.post("/auth/register", data);
 			console.log(res);
 			if (res.data.success) {
+				// New registrations are not onboarded yet
+				updateUser({
+					id: res.data.data.id,
+					email: res.data.data.email,
+					onBoarding: false,
+				});
 				router.push("/onboard");
 			}
 		} catch (error) {

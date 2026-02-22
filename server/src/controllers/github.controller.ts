@@ -34,13 +34,20 @@ export async function authenticateUser(req: Request, res: Response) {
     }
 
     const [existing_user] = await db
-      .select({ email: users.email, id: users.id })
+      .select({
+        email: users.email,
+        id: users.id,
+        onBoarding: users.onBoarding,
+      })
       .from(users)
       .where(eq(users.email, email));
 
     if (existing_user) {
-      tokenService.setTokens(res, existing_user);
-      success(res, { message: 'User login successful' });
+      tokenService.setTokens(res, { id: existing_user.id });
+      success(res, {
+        message: 'User login successful',
+        onBoarding: existing_user.onBoarding,
+      });
       return;
     }
 
@@ -56,7 +63,7 @@ export async function authenticateUser(req: Request, res: Response) {
       })
       .returning({
         id: users.id,
-        on_bording: users.onBoarding,
+        onBoarding: users.onBoarding,
       });
 
     if (user) {
@@ -64,7 +71,7 @@ export async function authenticateUser(req: Request, res: Response) {
     }
     success(res, {
       message: 'User Registered Successfully',
-      on_boarding: user?.on_bording,
+      onBoarding: user?.onBoarding,
     });
   } catch (error) {
     failed(res, {

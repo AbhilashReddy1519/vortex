@@ -54,6 +54,6 @@ export const authenticateService = {
       );
     }
 
-    return { id: user.id };
+    return { id: user.id, onBoarding: user.onBoarding };
   },
 };

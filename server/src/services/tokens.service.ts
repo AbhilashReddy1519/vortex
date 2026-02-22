@@ -12,7 +12,7 @@ export const tokenService = {
     const token = { id: payload.id };
     // Refresh Token
     const refreshToken = generateToken(token, '7d');
-    cookies.set(res, 'refreshCookie', refreshToken);
+    cookies.set(res, 'refreshToken', refreshToken);
 
     // CSRF token
     const csrfToken = crypto.randomBytes(24).toString('hex');

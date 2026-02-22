@@ -5,17 +5,19 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { authorization } from "@/api/github.api";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function GithubCallbackClient() {
 	const params = useSearchParams();
 	const code = params.get("code");
 	const error = params.get("error");
 	const router = useRouter();
+	const { updateUser } = useAuth();
 
 	useEffect(() => {
 		if (!code && !error) return;
-		if(error) {
-			console.log(error, params.get('error_description'));
+		if (error) {
+			console.log(error, params.get("error_description"));
 			router.push("/login");
 			return;
 		}
@@ -25,12 +27,20 @@ export default function GithubCallbackClient() {
 				const res = await authorization(code!); // ! non null assertion
 				const ok = res.data;
 				if (ok.success) {
-					if(ok?.on_boarding) {
-						router.push('/onboard');
+					// Update auth state with GitHub user data
+					const isOnboarded = ok?.data?.onBoarding ?? false;
+					updateUser({
+						id: ok.data.id,
+						email: ok.data.email,
+						onBoarding: isOnboarded,
+					});
+
+					if (isOnboarded) {
+						router.push("/feed");
 						return;
 					}
-					router.push("/feed");
-				} 
+					router.push("/onboard");
+				}
 			} catch (error) {
 				console.error("GitHub authentication failed:", error);
 				router.push("/login");

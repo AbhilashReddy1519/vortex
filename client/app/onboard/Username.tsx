@@ -1,5 +1,6 @@
 import api from "@/api/config/api";
 import { debounceAsync } from "@/utils/debounce";
+import { useAuth } from "@/hooks/useAuth";
 import { OnboardingFormData } from "@/validations/onboard.validation";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -8,7 +9,9 @@ import { useFormContext } from "react-hook-form";
 type props = {
 	goToNextStep: () => void;
 	updateFormData: (data: Partial<OnboardingFormData>) => void;
-	completeOnboarding: () => Promise<boolean>;
+	completeOnboarding: (
+		data?: Partial<OnboardingFormData>,
+	) => Promise<boolean>;
 };
 
 const Username = ({
@@ -16,6 +19,7 @@ const Username = ({
 	updateFormData,
 	completeOnboarding,
 }: props) => {
+	const { updateUser } = useAuth();
 	const {
 		register,
 		formState: { errors },
@@ -30,11 +34,12 @@ const Username = ({
 	const onNext = async (data: Partial<OnboardingFormData>) => {
 		const valid = await trigger();
 		if (!valid) return;
-		// console.log(data);
-		updateFormData(data);
-		const res = await completeOnboarding();
-		if(res) {
-			router.push('/feed');
+		// Pass the data directly instead of relying on state update
+		const res = await completeOnboarding(data);
+		if (res) {
+			// Mark onboarding as complete in auth state
+			updateUser({ onBoarding: true });
+			router.push("/feed");
 		} else {
 			console.log("Unable to submit data");
 		}

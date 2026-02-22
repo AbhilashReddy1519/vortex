@@ -31,7 +31,11 @@ export async function registerUser(req: Request, res: Response) {
     return success(res, {
       code: 201,
       message: 'User Registered Successfully',
-      on_boarding: result.on_boarding,
+      data: {
+        id: result.id,
+        email: result.email,
+        onBoarding: result.onBoarding,
+      },
     });
   } catch (error) {
     return failed(res, { error });
@@ -47,20 +51,15 @@ export async function loginUser(req: Request, res: Response) {
       throw new Error('Cannot generate refresh token: user not found');
     }
     tokenService.setTokens(res, result);
-    // Refresh Token
-    // const refreshToken = generateToken(result, '7d');
-    // cookies.set(res, 'refreshCookie', refreshToken);
-
-    // // CSRF token
-    // const csrfToken = crypto.randomBytes(24).toString('hex');
-    // cookies.set(res, 'csrfToken', csrfToken, { httpOnly: false });
-
-    // // Access Token
-    // const accessToken = generateToken(result, '15m');
-    // cookies.set(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
 
     return success(res, {
-      message: 'User login successfull',
+      code: 200,
+      message: 'User login successful',
+      data: {
+        id: result.id,
+        email: result.email,
+        onBoarding: result.onBoarding,
+      },
     });
   } catch (error) {
     return failed(res, { error, code: 404 });
@@ -79,9 +78,50 @@ export async function checkUsername(req: Request, res: Response) {
     return success(res, { available });
   } catch (error) {
     console.log(error);
-    return failed(res, { code: 500, available: false, error: 'Internal server error' });
+    return failed(res, {
+      code: 500,
+      available: false,
+      error: 'Internal server error',
+    });
   }
 }
 
 // update -> user info
 // logout
+
+export async function getCurrentUser(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return failed(res, {
+        code: 401,
+        error: 'User not authenticated',
+      });
+    }
+
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return failed(res, {
+        code: 404,
+        error: 'User not found',
+      });
+    }
+
+    return success(res, {
+      code: 200,
+      message: 'User retrieved successfully',
+      data: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        fullName: user.fullName,
+        onBoarding: user.onBoarding,
+      },
+    });
+  } catch (error) {
+    return failed(res, {
+      code: 500,
+      error: error instanceof Error ? error.message : 'Failed to get user',
+    });
+  }
+}

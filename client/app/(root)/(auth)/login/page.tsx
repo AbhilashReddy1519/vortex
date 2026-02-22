@@ -2,6 +2,7 @@
 
 import api from "@/api/config/api";
 import PasswordInput from "@/components/ui/passwordInput";
+import { useAuth } from "@/hooks/useAuth";
 import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import { FC, useState } from "react";
 
 const Login: FC = () => {
 	const router = useRouter();
+	const { updateUser } = useAuth();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	function loginWithGitHub() {
@@ -40,7 +42,20 @@ const Login: FC = () => {
 			const res = await api.post("/auth/login", formData);
 			console.log(res);
 			if (res.data.success) {
-				router.push("/feed");
+				// Update auth state with user data
+				updateUser({
+					id: res.data.data.id,
+					email: res.data.data.email,
+					onBoarding: res.data.data.onBoarding ?? false,
+				});
+
+				// Redirect based on onboarding status from server
+				const shouldCompleteOnboarding = !res.data.data.onBoarding;
+				if (shouldCompleteOnboarding) {
+					router.push("/onboard");
+				} else {
+					router.push("/feed");
+				}
 			}
 		} catch (error) {
 			if (error instanceof AxiosError) {

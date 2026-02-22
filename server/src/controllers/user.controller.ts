@@ -4,11 +4,16 @@ import { failed, success } from '#utils/response.util.js';
 import type { IOnboardSchema } from '#validations/onboard.validation.js';
 import type { Request, Response } from 'express';
 
-
 export async function completeOnboarding(req: Request, res: Response) {
-  const payload:IOnboardSchema = req.body;
+  const payload: IOnboardSchema = req.body;
+  const userId = req.user?.id;
+
   if (!payload) {
-    failed(res, { error: 'User is not available' });
+    return failed(res, { error: 'Payload is required', code: 400 });
+  }
+
+  if (!userId) {
+    return failed(res, { error: 'User is not authenticated', code: 401 });
   }
 
   try {
@@ -20,14 +25,27 @@ export async function completeOnboarding(req: Request, res: Response) {
     const profilePicture = files?.profile_picture?.[0];
     const coverPicture = files?.cover_picture?.[0];
 
-    const result = await userService.completeOnboarding(
+    const result = await userService.completeOnboarding({
+      userId,
       payload,
-      profilePicture,
-      coverPicture
-    );
-    console.log(result);
+      ...(profilePicture && { profilePicture }),
+      ...(coverPicture && { coverPicture }),
+    });
+
+    return success(res, {
+      code: 200,
+      message: result.message,
+      user: result.user,
+    });
   } catch (error) {
-    console.log(error);
+    console.error('Onboarding error:', error);
+    return failed(res, {
+      code: 500,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to complete onboarding',
+    });
   }
 }
 

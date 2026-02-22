@@ -47,11 +47,11 @@ export const useOnboarding = () => {
 	const getFormData = (formData: Partial<StepFormData>): FormData => {
 		const fd = new FormData();
 		// text fields
-		fd.append("firstName", formData.firstName!);
-		fd.append("lastName", formData.lastName!);
-		fd.append("country", formData.country!);
-		fd.append("city", formData.city!);
-		fd.append("username", formData.username!);
+		if (formData.firstName) fd.append("firstName", formData.firstName);
+		if (formData.lastName) fd.append("lastName", formData.lastName);
+		if (formData.country) fd.append("country", formData.country);
+		if (formData.city) fd.append("city", formData.city);
+		if (formData.username) fd.append("username", formData.username);
 
 		// files
 		if (formData.profile_picture) {
@@ -65,10 +65,16 @@ export const useOnboarding = () => {
 		return fd;
 	};
 
-	const completeOnboarding = async () => {
+	const completeOnboarding = async (
+		finalData?: Partial<StepFormData>,
+	): Promise<boolean> => {
 		try {
-			console.log(formData);
-			const userData = getFormData(formData);
+			// Use passed data or fall back to state
+			const dataToSubmit = finalData
+				? { ...formData, ...finalData }
+				: formData;
+			console.log(dataToSubmit);
+			const userData = getFormData(dataToSubmit);
 			const res = await api.put(
 				"/user/complete-onboarding",
 				userData,

@@ -4,8 +4,8 @@ import { NODE_ENV } from '#config/env.js';
 export const cookies = {
   getOptions: (): cookieOptions => ({
     httpOnly: true,
-    secure: NODE_ENV === 'production', // only over HTTPS in prod
-    sameSite: 'lax', // or "strict" depending on your needs
+    secure: NODE_ENV === 'production',
+    sameSite: NODE_ENV === 'production' ? 'strict' : 'lax', // 'lax' for HTTP localhost, 'strict' for production
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     signed: true,
   }),
