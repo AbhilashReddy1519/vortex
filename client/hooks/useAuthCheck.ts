@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/context/AuthContext";
 
-// Routes that don't require onboarding check
-const PUBLIC_ROUTES = ["/login", "/register", "/auth/github"];
+// Routes that don't require authentication (PUBLIC)
+const PUBLIC_ROUTES = ["/", "/login/", "/register/", "/auth/github/", "/feed/"];
+
+// Routes that require authentication (PRIVATE)
+const PRIVATE_ROUTES = ["/onboard", "/contact"];
+// Add Routes to private "/feed" -> working no need after done add ok
 const ONBOARDING_ROUTE = "/onboard";
 
 /**
@@ -17,24 +21,39 @@ export function useAuthCheck() {
 	const { user, isLoading, isAuthenticated } = useAuth();
 
 	useEffect(() => {
-		// Skip auth check on public/auth routes
-		if (PUBLIC_ROUTES.includes(pathname) || pathname === ONBOARDING_ROUTE) {
+		// 1. Check if current route is PUBLIC (login, register, etc)
+		const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+		// Skip auth checks if on public route
+		if (isPublicRoute) {
 			return;
 		}
 
-		// Wait for auth to load
+		// 2. Wait for user data to load from Context
 		if (isLoading) {
-			return;
+			return; // Don't redirect while loading
 		}
 
-		// User is not authenticated
+		// 3. If not authenticated on any non-public route, redirect to login
 		if (!isAuthenticated || !user) {
+			router.push("/login");
 			return;
 		}
 
-		// Check onboarding status from database field
-		if (!user.onBoarding) {
-			router.push(ONBOARDING_ROUTE);
+		// 4. User IS authenticated, now check onboarding status
+		const isPrivateRoute = PRIVATE_ROUTES.includes(pathname);
+
+		if (isPrivateRoute) {
+			// If not onboarded, redirect to onboard
+			if (!user.onBoarding && pathname !== ONBOARDING_ROUTE) {
+				router.push(ONBOARDING_ROUTE);
+				return;
+			}
+
+			// If already onboarded but still on onboard page, redirect to feed
+			if (user.onBoarding && pathname === ONBOARDING_ROUTE) {
+				router.push("/feed");
+				return;
+			}
 		}
 	}, [pathname, router, user, isLoading, isAuthenticated]);
 }

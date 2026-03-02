@@ -26,7 +26,7 @@ export const authenticateService = {
     const [newUser] = await db
       .insert(users)
       .values({ email, passwordHash })
-      .returning({ id: users.id, on_boarding: users.onBoarding });
+      .returning({ id: users.id, on_boarding: users.onBoarding, email: users.email });
 
     return newUser;
   },
@@ -54,6 +54,6 @@ export const authenticateService = {
       );
     }
 
-    return { id: user.id, onBoarding: user.onBoarding };
+    return { id: user.id, onBoarding: user.onBoarding, email: user.email };
   },
 };

@@ -49,6 +49,6 @@ export async function verifyUser(
   }
 
   console.log(`✅ User verified: ${client.user}`);
-  req.user = client.user;
+  req.user = {id: client.user};
   next();
 }

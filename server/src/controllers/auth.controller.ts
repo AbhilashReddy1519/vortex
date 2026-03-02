@@ -1,7 +1,7 @@
 import { authenticateService } from '#services/auth.service.js';
 import { failed, success } from '#utils/response.util.js';
 import type { Request, Response } from 'express';
-import { tokenService } from '#services/tokens.service.js';
+import { tokenService, userTokenService } from '#services/tokens.service.js';
 import { userService } from '#services/user.service.js';
 
 // Register --> email password
@@ -34,7 +34,7 @@ export async function registerUser(req: Request, res: Response) {
       data: {
         id: result.id,
         email: result.email,
-        onBoarding: result.onBoarding,
+        onBoarding: result.on_boarding,
       },
     });
   } catch (error) {
@@ -46,11 +46,14 @@ export async function registerUser(req: Request, res: Response) {
 export async function loginUser(req: Request, res: Response) {
   const payload = req.body;
   try {
+    console.log('📝 Login attempt with:', payload.identifier);
     const result = await authenticateService.login(payload);
     if (!result) {
       throw new Error('Cannot generate refresh token: user not found');
     }
+    console.log('✅ Login successful, setting tokens...');
     tokenService.setTokens(res, result);
+    console.log('📤 Tokens set, sending response');
 
     return success(res, {
       code: 200,
@@ -62,6 +65,7 @@ export async function loginUser(req: Request, res: Response) {
       },
     });
   } catch (error) {
+    console.error('❌ Login error:', error);
     return failed(res, { error, code: 404 });
   }
 }
@@ -122,6 +126,43 @@ export async function getCurrentUser(req: Request, res: Response) {
     return failed(res, {
       code: 500,
       error: error instanceof Error ? error.message : 'Failed to get user',
+    });
+  }
+}
+
+// Refresh access token using refresh token
+export async function refreshUser(req: Request, res: Response) {
+  try {
+    const refreshToken = req.signedCookies.refreshToken;
+
+    if (!refreshToken) {
+      return failed(res, {
+        code: 401,
+        error: 'Refresh token not found',
+      });
+    }
+
+    const result = userTokenService.getUserResult(refreshToken);
+
+    if (!result.success) {
+      return failed(res, {
+        code: result.code,
+        error: result.reason,
+      });
+    }
+
+    // Generate new access token
+    const payload = { id: result.user };
+    tokenService.setAccessToken(res, payload);
+
+    return success(res, {
+      code: 200,
+      message: 'Access token refreshed',
+    });
+  } catch (error) {
+    return failed(res, {
+      code: 500,
+      error: error instanceof Error ? error.message : 'Failed to refresh token',
     });
   }
 }

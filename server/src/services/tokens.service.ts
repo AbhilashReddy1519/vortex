@@ -10,17 +10,23 @@ type tokenPayload = {
 export const tokenService = {
   setTokens: (res: Response, payload: tokenPayload) => {
     const token = { id: payload.id };
+    console.log('🔑 Setting tokens for user:', payload.id);
+
     // Refresh Token
     const refreshToken = generateToken(token, '7d');
     cookies.set(res, 'refreshToken', refreshToken);
+    console.log('✅ Refresh token set');
 
     // CSRF token
     const csrfToken = crypto.randomBytes(24).toString('hex');
     cookies.set(res, 'csrfToken', csrfToken, { httpOnly: false });
+    console.log('✅ CSRF token set');
 
     // Access Token
     const accessToken = generateToken(token, '15m');
+    console.log('Generated accessToken:', accessToken ? 'YES' : 'NO');
     cookies.set(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
+    console.log('✅ Access token set with maxAge:', 15 * 60 * 1000);
   },
   setAccessToken: (res: Response, payload: tokenPayload) => {
     const token = { id: payload.id };
