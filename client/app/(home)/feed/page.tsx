@@ -1,10 +1,12 @@
+import Header from '@/components/layouts/Header';
 import React from 'react'
 
 function feed() {
   return (
-    <div>
+    <>
+      <Header />
       Welcome to Vortex
-    </div>
+    </>
   )
 }
 
