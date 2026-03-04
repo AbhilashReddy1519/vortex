@@ -6,14 +6,33 @@ import React, { useRef, useState } from "react";
 function Header() {
 	const [tooltip, setTooltip] = useState("");
 	const [userMenu, setUserMenu] = useState(false);
-  const menu = useRef<null | HTMLDivElement>(null);
+	const menu = useRef<null | HTMLDivElement>(null);
+	const dummyUsername = "Abhilash";
 
 	return (
-		<header className="h-16 w-full border-b border-b-gray-600 flex">
-			<div className="bg-white h-full w-4/5 flex"></div>
+		<header
+			className="h-16 w-full bg-black border-b border-b-gray-600 flex"
+			style={{ boxShadow: "0px 5px 10px #212121" }}>
+			<div className="h-full w-4/5 flex items-center justify-between pl-4 p-2 gap-2 relative">
+				<div className="flex gap-8 items-center">
+					<h1>Menu</h1>
+					<Link href={"/"}>
+						<Image
+							src="/images/logo.png"
+							width={100}
+							height={100}
+							alt="User"
+							className="w-15 rounded-full -rotate-55"
+						/>
+					</Link>
+				</div>
+				<div className="border border-gray-600 h-10 w-1/2 rounded flex items-center p-2">
+					<h1>Search</h1>
+				</div>
+			</div>
 
 			<div className="h-full w-2 flex justify-center items-center">
-				<span className="h-6 w-px bg-gray-600"></span>
+				<span className="h-8 w-px bg-gray-600"></span>
 			</div>
 
 			<div className="h-full w-1/5 flex items-center pr-4 p-2 flex-row-reverse gap-2 relative">
@@ -65,7 +84,9 @@ function Header() {
 								</div>
 								<hr className="border-t border-gray-600 border-0" />
 								<div className="flex w-full gap-2 flex-col">
-									<Link href={"/"}>Profile</Link>
+									<Link href={`/${dummyUsername}`}>
+										Profile
+									</Link>
 									<Link href={"/"}>Dashboard</Link>
 									<Link href={"/"}>My Posts</Link>
 									<Link href={"/"}>Settings</Link>
