@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import StoreProvider from "@/store/provider";
 
 function AuthCheckWrapper({ children }: { children: React.ReactNode }) {
 	useAuthCheck();
@@ -16,7 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<AuthProvider>
-				<AuthCheckWrapper>{children}</AuthCheckWrapper>
+				<StoreProvider>
+					<AuthCheckWrapper>{children}</AuthCheckWrapper>
+				</StoreProvider>
 			</AuthProvider>
 		</QueryClientProvider>
 	);

@@ -11,7 +11,8 @@ import { FC, useState } from "react";
 
 const Login: FC = () => {
 	const router = useRouter();
-	const { updateUser } = useAuth();
+	const { user, updateUser, isAuthenticated } = useAuth();
+	console.log(user, isAuthenticated);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	function loginWithGitHub() {
@@ -52,9 +53,9 @@ const Login: FC = () => {
 				// Redirect based on onboarding status from server
 				const shouldCompleteOnboarding = !res.data.data.onBoarding;
 				if (shouldCompleteOnboarding) {
-					router.push("/onboard");
+					router.push("/onboard/");
 				} else {
-					router.push("/feed");
+					router.push("/feed/");
 				}
 			}
 		} catch (error) {

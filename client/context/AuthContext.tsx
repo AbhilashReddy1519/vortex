@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import api from "@/api/config/api";
 
 // Development mode: set to true to skip server auth fetch
-const SKIP_SERVER_AUTH = true; // Change to false when server is running
+const SKIP_SERVER_AUTH = false; // Change to false when server is running
 
 export interface User {
 	id: string;
@@ -76,8 +76,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	const refetchUser = async () => {
 		try {
+			console.log("AUTH: fetching user");
 			const response = await api.get("/auth/me");
+			
+			console.log("AUTH: response", response.data);
+
 			if (response.data.success) {
+				console.log("AUTH: setting user", response.data.data);
 				setUser(response.data.data);
 			}
 		} catch (err) {

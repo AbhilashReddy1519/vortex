@@ -4,7 +4,7 @@ import {
 } from '#controllers/user.controller.js';
 import { upload } from '#middlewares/user/images.middleware.js';
 import { validate } from '#middlewares/validate.middleware.js';
-import { verifyUser } from '#middlewares/user/user.middleware.js';
+import { getUseData, verifyUser } from '#middlewares/user/user.middleware.js';
 import { onboardSchema } from '#validations/onboard.validation.js';
 import { Router } from 'express';
 
@@ -21,5 +21,7 @@ router.put(
   validate(onboardSchema),
   completeOnboarding
 );
+
+router.post('/me', verifyUser, getUseData);
 
 export default router;

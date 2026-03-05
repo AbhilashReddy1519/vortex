@@ -1,6 +1,8 @@
 import { userTokenService } from '#services/tokens.service.js';
-import { failed } from '#utils/response.util.js';
+import { userService } from '#services/user.service.js';
+import { failed, success } from '#utils/response.util.js';
 import type { NextFunction, Request, Response } from 'express';
+
 
 export async function verifyCSRF(
   req: Request,
@@ -49,6 +51,37 @@ export async function verifyUser(
   }
 
   console.log(`✅ User verified: ${client.user}`);
-  req.user = {id: client.user};
+  req.user = { id: client.user };
   next();
+}
+
+export async function getUseData(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return failed(res, {
+        code: 401,
+        error: 'User not authenticated',
+      });
+    }
+
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return failed(res, {
+        code: 404,
+        error: 'User not found',
+      });
+    }
+
+    return success(res, {
+      code: 200,
+      message: 'User retrieved successfully',
+      data: {...user},
+    });
+  } catch (error) {
+    return failed(res, {
+      code: 500,
+      error: error instanceof Error ? error.message : 'Failed to get user',
+    });
+  }
 }
