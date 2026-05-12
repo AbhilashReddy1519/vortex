@@ -34,7 +34,7 @@ export async function registerUser(req: Request, res: Response) {
       data: {
         id: result.id,
         email: result.email,
-        onBoarding: result.on_boarding,
+        onBoarding: result.onBoarding ?? false,
       },
     });
   } catch (error) {
@@ -163,6 +163,22 @@ export async function refreshUser(req: Request, res: Response) {
     return failed(res, {
       code: 500,
       error: error instanceof Error ? error.message : 'Failed to refresh token',
+    });
+  }
+}
+
+export function logout(req: Request, res: Response) {
+  try {
+    tokenService.clearTokens(res);
+
+    return success(res, {
+      code: 200,
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    return failed(res, {
+      code: 500,
+      error: error instanceof Error ? error.message : 'Logout failed',
     });
   }
 }

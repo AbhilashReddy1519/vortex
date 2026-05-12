@@ -45,8 +45,13 @@ export async function authenticateUser(req: Request, res: Response) {
     if (existing_user) {
       tokenService.setTokens(res, { id: existing_user.id });
       success(res, {
+        code: 200,
         message: 'User login successful',
-        onBoarding: existing_user.onBoarding,
+        data: {
+          id: existing_user.id,
+          email: existing_user.email,
+          onBoarding: existing_user.onBoarding,
+        },
       });
       return;
     }
@@ -63,6 +68,7 @@ export async function authenticateUser(req: Request, res: Response) {
       })
       .returning({
         id: users.id,
+        email: users.email,
         onBoarding: users.onBoarding,
       });
 
@@ -70,8 +76,13 @@ export async function authenticateUser(req: Request, res: Response) {
       tokenService.setTokens(res, user);
     }
     success(res, {
+      code: 201,
       message: 'User Registered Successfully',
-      onBoarding: user?.onBoarding,
+      data: {
+        id: user?.id,
+        email: user?.email,
+        onBoarding: user?.onBoarding,
+      },
     });
   } catch (error) {
     failed(res, {

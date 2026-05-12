@@ -2,7 +2,7 @@
 
 import api from "@/api/config/api";
 import PasswordInput from "@/components/ui/passwordInput";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { AxiosError } from "axios";
 import Image from "next/image";
 import Link from "next/link";

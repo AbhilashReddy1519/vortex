@@ -2,7 +2,7 @@
 
 import api from "@/api/config/api";
 import PasswordInput from "@/components/ui/passwordInput";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { ISignUpSchema, signUpSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";

@@ -1,6 +1,6 @@
 import api from "@/api/config/api";
 import { debounceAsync } from "@/utils/debounce";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { OnboardingFormData } from "@/validations/onboard.validation";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";

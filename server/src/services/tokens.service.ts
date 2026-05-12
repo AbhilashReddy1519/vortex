@@ -35,7 +35,12 @@ export const tokenService = {
     const accessToken = generateToken(token, '15m');
     cookies.set(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
   },
-  clearTokens: () => {},
+  clearTokens: (res: Response) => {
+    cookies.clear(res, 'refreshToken');
+    cookies.clear(res, 'accessToken');
+    cookies.clear(res, 'csrfToken', { httpOnly: false });
+    cookies.clear(res, 'githubAccessToken');
+  },
 };
 
 type UserResult =

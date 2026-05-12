@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios";
 import api from "./api";
 import { clearCsrfToken } from "./requestInterceptors";
 
@@ -41,14 +41,22 @@ api.interceptors.response.use(
 				isRefreshing = true;
 				try {
 					console.log("📡 Calling /auth/refresh...");
-					await axios.post(
-						"http://localhost:8000/auth/refresh",
-						{},
-						{ withCredentials: true },
-					);
+					// await axios.post(
+					// 	"http://localhost:8000/auth/refresh",
+					// 	{},
+					// 	{ withCredentials: true },
+					await api.post("/auth/refresh");
+					// );
 					console.log("✅ Token refreshed successfully");
-					isRefreshing = false;
+
+					// Clear cached CSRF token to fetch the new one
+					clearCsrfToken();
+
+					await new Promise((resolve) => setTimeout(resolve, 50));
+
 					onRefreshed();
+
+					isRefreshing = false;
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (err: any) {
 					console.error(

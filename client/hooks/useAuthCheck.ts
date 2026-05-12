@@ -1,63 +1,78 @@
+"use client";
+
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+
 import { useAuth } from "@/context/AuthContext";
 
-// Routes that don't require authentication (PUBLIC)
-const PUBLIC_ROUTES = ["/", "/login/", "/register/", "/auth/github/", "/feed/"];
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
 
-// Routes that require authentication (PRIVATE)
-const PRIVATE_ROUTES = ["/onboard/", "/contact/"];
-// Add Routes to private "/feed" -> working no need after done add ok
-const ONBOARDING_ROUTE = "/onboard/";
+const PUBLIC_ROUTE_PREFIXES = ["/auth/github"];
 
-/**
- * Hook to check onboarding status and redirect accordingly
- * Call this in your root layout or main app provider
- * Uses the database onBoarding field instead of localStorage
- */
+const ONBOARDING_ROUTE = "/onboard";
+
 export function useAuthCheck() {
 	const router = useRouter();
+
 	const pathname = usePathname();
-	const { user, isLoading, isAuthenticated } = useAuth();
+
+	const { user, isLoading, isAuthenticated, authInitialized } = useAuth();
 
 	useEffect(() => {
-		// 1. Check if current route is PUBLIC (login, register, etc)
-		const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-		// Skip auth checks if on public route
-		console.log(pathname);
+		if (!pathname) return;
+
+		// Prevent hydration/auth race conditions
+		if (!authInitialized) {
+			console.log("⏳ Auth not initialized yet");
+			return;
+		}
+
+		const normalizedPath =
+			pathname !== "/" && pathname.endsWith("/")
+				? pathname.slice(0, -1)
+				: pathname;
+
+		const isPublicRoute =
+			PUBLIC_ROUTES.includes(normalizedPath) ||
+			PUBLIC_ROUTE_PREFIXES.some((prefix) => normalizedPath.startsWith(prefix));
+
 		if (isPublicRoute) {
-			console.log("Public");
+			console.log("🔓 Public route:", normalizedPath);
 			return;
 		}
 
-		// 2. Wait for user data to load from Context
+		console.log("🔒 Protected route:", normalizedPath, "Loading:", isLoading);
+
 		if (isLoading) {
-			return; // Don't redirect while loading
-		}
-
-		// 3. If not authenticated on any non-public route, redirect to login
-		if (!isAuthenticated || !user) {
-			console.log("Authenticated");
-			router.push("/login");
+			console.log("⏳ Still loading auth...");
 			return;
 		}
 
-		// 4. User IS authenticated, now check onboarding status
-		const isPrivateRoute = PRIVATE_ROUTES.includes(pathname);
+		// NOT AUTHENTICATED
+		if (!isAuthenticated || !user) {
+			console.log("❌ Not authenticated → /login");
 
-		if (isPrivateRoute) {
-			// If not onboarded, redirect to onboard
-			console.log("Private");
-			if (!user.onBoarding && pathname !== ONBOARDING_ROUTE) {
-				router.push(ONBOARDING_ROUTE);
-				return;
-			}
+			router.replace("/login");
 
-			// If already onboarded but still on onboard page, redirect to feed
-			if (user.onBoarding || pathname === ONBOARDING_ROUTE) {
-				router.push("/feed");
-				return;
-			}
+			return;
 		}
-	}, [pathname, router, user, isLoading, isAuthenticated]);
+
+		// NOT ONBOARDED
+		if (!user.onBoarding && normalizedPath !== ONBOARDING_ROUTE) {
+			console.log("🎯 Redirecting to onboarding");
+			console.log(user, "OnBoarding: ", user.onBoarding);
+			router.replace(ONBOARDING_ROUTE);
+
+			return;
+		}
+
+		// ALREADY ONBOARDED
+		if (user.onBoarding && normalizedPath === ONBOARDING_ROUTE) {
+			console.log("✅ Redirecting to feed");
+
+			router.replace("/feed");
+
+			return;
+		}
+	}, [pathname, router, user, isLoading, isAuthenticated, authInitialized]);
 }

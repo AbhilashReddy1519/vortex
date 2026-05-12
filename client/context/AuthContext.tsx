@@ -2,9 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "@/api/config/api";
+import type { AxiosError } from "axios";
 
-// Development mode: set to true to skip server auth fetch
-const SKIP_SERVER_AUTH = false; // Change to false when server is running
+// Development mode
+const SKIP_SERVER_AUTH = false;
 
 export interface User {
 	id: string;
@@ -17,6 +18,7 @@ export interface User {
 interface AuthContextType {
 	user: User | null;
 	isLoading: boolean;
+	authInitialized: boolean;
 	error: string | null;
 	isAuthenticated: boolean;
 	updateUser: (updates: Partial<User>) => void;
@@ -28,65 +30,123 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
+
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+
 	const [isLoading, setIsLoading] = useState(true);
+
+	const [authInitialized, setAuthInitialized] = useState(false);
+
 	const [error, setError] = useState<string | null>(null);
 
-	// Fetch user from server ONCE on mount
+	// =========================
+	// FETCH USER ON APP START
+	// =========================
 	useEffect(() => {
 		if (SKIP_SERVER_AUTH) {
 			console.log("⚠️ Server auth skipped - offline dev mode");
+
 			setIsLoading(false);
+			setAuthInitialized(true);
+
 			return;
 		}
 
 		const fetchUser = async () => {
 			try {
 				setIsLoading(true);
+
+				console.log("🔐 AUTH: Fetching user from /auth/me...");
+
 				const response = await api.get("/auth/me");
+
+				console.log("🔐 AUTH: Response", response.data);
+
 				if (response.data.success) {
-					setUser(response.data.data);
+					const userData = response.data.data;
+
+					console.log("✅ AUTH: User authenticated", userData);
+
+					setUser(userData.data);
+					setIsAuthenticated(true);
 					setError(null);
+				} else {
+					console.warn("⚠️ AUTH: API returned success:false");
+
+					setUser(null);
+					setIsAuthenticated(false);
 				}
 			} catch (err) {
-				// Server offline or connection error
-				console.warn(
-					"⚠️ Server unavailable for auth check - continuing in offline mode",
-				);
+				const axiosError = err as AxiosError;
+
+				const errorMsg = err instanceof Error ? err.message : String(err);
+
+				console.error("❌ AUTH: Failed to fetch user", {
+					status: axiosError?.response?.status || "unknown",
+					error: errorMsg,
+				});
+
 				setUser(null);
-				setError(
-					err instanceof Error
-						? err.message
-						: "Server connection failed",
-				);
+				setIsAuthenticated(false);
+				setError(errorMsg);
 			} finally {
 				setIsLoading(false);
+				setAuthInitialized(true);
 			}
 		};
 
 		fetchUser();
-	}, []); // Empty dependency = runs ONCE on mount
+	}, []);
 
+	// =========================
+	// UPDATE USER
+	// =========================
 	const updateUser = (updates: Partial<User>) => {
-		setUser((prev) => (prev ? { ...prev, ...updates } : null));
+		setUser((prev) => {
+			if (!prev) {
+				return updates as User;
+			}
+
+			return {
+				...prev,
+				...updates,
+			};
+		});
 	};
 
+	// =========================
+	// LOGOUT
+	// =========================
 	const logout = () => {
 		setUser(null);
+		setIsAuthenticated(false);
 	};
 
+	// =========================
+	// REFETCH USER
+	// =========================
 	const refetchUser = async () => {
 		try {
-			console.log("AUTH: fetching user");
+			console.log("🔄 AUTH: Refetching user");
+
 			const response = await api.get("/auth/me");
-			
-			console.log("AUTH: response", response.data);
+
+			console.log("🔄 AUTH: Response", response.data);
 
 			if (response.data.success) {
-				console.log("AUTH: setting user", response.data.data);
-				setUser(response.data.data);
+				const userData = response.data.data;
+
+				setUser(userData.data);
+				setIsAuthenticated(true);
+			} else {
+				setUser(null);
+				setIsAuthenticated(false);
 			}
 		} catch (err) {
+			console.error("❌ AUTH: Refetch failed", err);
+
 			setUser(null);
+			setIsAuthenticated(false);
 		}
 	};
 
@@ -95,12 +155,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			value={{
 				user,
 				isLoading,
+				authInitialized,
 				error,
-				isAuthenticated: !!user,
+				isAuthenticated,
 				updateUser,
 				logout,
 				refetchUser,
-			}}>
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);
@@ -108,8 +170,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
 	const context = useContext(AuthContext);
+
 	if (!context) {
 		throw new Error("useAuth must be used within AuthProvider");
 	}
+
 	return context;
 }

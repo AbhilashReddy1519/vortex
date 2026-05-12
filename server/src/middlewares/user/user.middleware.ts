@@ -55,7 +55,7 @@ export async function verifyUser(
   next();
 }
 
-export async function getUseData(req: Request, res: Response) {
+export async function getUserData(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -76,7 +76,7 @@ export async function getUseData(req: Request, res: Response) {
     return success(res, {
       code: 200,
       message: 'User retrieved successfully',
-      data: {...user},
+      data: user,
     });
   } catch (error) {
     return failed(res, {
